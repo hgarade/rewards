@@ -3,47 +3,59 @@
  * @param {customer data} data
  * @returns object of calculated points customer wise
  */
-export const getCustomerDataWithCalculatedPoints = (data) => {
-  const customerPoints = {};
+export const getCustomerDataWithCalculatedPoints = (userData) => {
+  let customerPoints = {};
+  const threeMonthsData = userData.filter((transactions) => {
+    return new Date().getMonth() +
+      1 -
+      (new Date(transactions.transactionDate).getMonth() + 1) <
+      3
+      ? true
+      : false;
+  });
+  threeMonthsData.forEach((user) => {
+    const { userId, userName, transactionDate, transactionAmount } = user;
 
-  data.forEach((element) => {
-    const { id, name, date, amount } = element;
-    const month = new Date(date).toLocaleString("default", { month: "long" }); // get month of the transaction.
+    const month = new Date(transactionDate).getMonth() + 1; // get month of the transaction.
 
-    // if customer id if not present in object then create one
-    if (!customerPoints[id]) {
-      customerPoints[id] = {
-        name,
+    // if customer userId if not present in object then create one
+    if (!customerPoints[userId]) {
+      customerPoints[userId] = {
+        userName,
         totalAmount: 0,
         monthlyPoints: {},
         totalPoints: 0,
+        monthlyAmount: {},
       };
     }
 
     // else modify the customer data accordingly
-    customerPoints[id].totalAmount += amount;
-    const points = calculateTotalPoints(amount);
-    customerPoints[id].totalPoints += points;
-    customerPoints[id].monthlyPoints[month] =
-      (customerPoints[id].monthlyPoints[month] || 0) + points;
+    customerPoints[userId].totalAmount += transactionAmount;
+    const points = calculateTotalPoints(transactionAmount);
+    customerPoints[userId].totalPoints += points;
+    customerPoints[userId].monthlyPoints[month] =
+      (customerPoints[userId].monthlyPoints[month] || 0) + points;
+    customerPoints[userId].monthlyAmount[month] = transactionAmount;
   });
-
   return customerPoints;
 };
 
 /**
  *
- * @param {amount spent by customer} amount
+ * @param {transactionAmount spent by customer} transactionAmount
  * @returns total points based on logic
  */
-const calculateTotalPoints = (amount) => {
+const calculateTotalPoints = (transactionAmount) => {
   let totalPoints = 0;
-  if (amount > 100) {
-    totalPoints += (amount - 100) * 2;
-    amount = 100;
+  if (transactionAmount > 100) {
+    totalPoints += (transactionAmount - 100) * 2;
+    transactionAmount = 100;
   }
-  if (amount > 50) {
-    totalPoints += (amount - 50) * 1;
+  if (transactionAmount > 50) {
+    totalPoints += (transactionAmount - 50) * 1;
+  }
+  if (transactionAmount < 0) {
+    totalPoints += 0;
   }
 
   return totalPoints;

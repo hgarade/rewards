@@ -8,16 +8,16 @@ const HomeComponent = () => {
   const [customerData, setCustomerData] = useState(null);
 
   useEffect(() => {
-    // fetch API data
+    // fetch API userData
     getCustomerData()
-      .then((entry) => {
-        const calculateData = getCustomerDataWithCalculatedPoints(entry); // get calculated points
-        setCustomerData(calculateData); //set it in state variable
+      .then((transaction) => {
+        const calculatedData = getCustomerDataWithCalculatedPoints(transaction); // get calculated points
+        setCustomerData(calculatedData); //set it in state variable
         setIsLoading(false);
         setIsError(null);
       })
       .catch((error) => {
-        // catch error is data loading failed
+        // catch error is userData loading failed
         setIsLoading(false);
         setIsError(error);
       });
@@ -33,38 +33,51 @@ const HomeComponent = () => {
         {/* to show error message */}
         {isError && <div>Data failed to load. Please try again...!!</div>}
 
-        {/* show table only if customer data is available */}
+        {/* show table only if customer userData is available */}
         {customerData && (
           <table className="table-auto">
             <thead>
               <tr>
                 <th className="p-4">ID</th>
                 <th className="p-4">Name</th>
+                <th className="p-4">Monthly Amount Spent</th>
                 <th className="p-4">Total Amount Spent</th>
-                <th className="p-4">Total Points</th>
                 <th className="p-4">Monthly Points</th>
+                <th className="p-4">Total Points</th>
+                
               </tr>
             </thead>
             <tbody className="text-center">
               {/* iterate over object for each customer */}
-              {Object.entries(customerData).map(([id, data]) => (
-                <tr key={id}>
-                  <td className="p-4">{id}</td>
-                  <td className="p-4">{data.name}</td>
-                  <td className="p-4">{data.totalAmount}</td>
-                  <td className="p-4">{data.totalPoints}</td>
+              {Object.entries(customerData).map(([userId, userData]) => (
+                <tr key={userId}>
+                  <td className="p-4">{userId}</td>
+                  <td className="p-4">{userData.userName}</td>
+                  <td className="p-4"><ul>
+                      {/* iterate over monthly amount object for each month */}
+                      {Object.entries(userData.monthlyAmount).sort((a,b)=>a[0]-b[0]).map(
+                        ([month, amount]) => (
+                          <li key={month}>
+                            Month {new Date(month).toLocaleString("default", { month: "long" })} :- {amount}
+                          </li>
+                        )
+                      )}{" "}
+                    </ul></td>
+                  <td className="p-4">{userData.totalAmount}</td>
                   <td className="p-4">
                     <ul>
                       {/* iterate over monthly points object for each month */}
-                      {Object.entries(data.monthlyPoints).map(
+                      {Object.entries(userData.monthlyPoints).sort((a,b)=>a[0]-b[0]).map(
                         ([month, points]) => (
                           <li key={month}>
-                            Month {month} :- {points}
+                            Month {new Date(month).toLocaleString("default", { month: "long" })} :- {points}
                           </li>
                         )
                       )}{" "}
                     </ul>
                   </td>
+                  
+                  <td className="p-4">{userData.totalPoints}</td>
                 </tr>
               ))}
             </tbody>

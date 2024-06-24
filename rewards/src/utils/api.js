@@ -7,7 +7,7 @@ import { transactions } from "../constants/mockData";
 const getCustomerData = () => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      resolve(transactions);
+        resolve(transactions);
       //reject("Data Loading Failed")    // uncomment to mock the failed scenario
     }, 2000);
   });
